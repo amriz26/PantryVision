@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PantryVision — Fridge to Recipe</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3352;
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --text: #e2e8f0;
+    --muted: #8892a4;
+    --radius: 14px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 64px;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+
+  .subtitle { color: var(--muted); font-size: .95rem; margin-bottom: 36px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    width: 100%;
+    max-width: 780px;
+    margin-bottom: 20px;
+  }
+
+  .card h2 { font-size: 1rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 16px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tab-btn {
+    flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); cursor: pointer; font-size: .9rem; transition: all .2s;
+  }
+  .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+
+  /* Drop zone */
+  #drop-zone {
+    border: 2px dashed var(--border); border-radius: var(--radius);
+    padding: 40px; text-align: center; cursor: pointer; transition: all .2s;
+    color: var(--muted);
+  }
+  #drop-zone:hover, #drop-zone.drag-over { border-color: var(--accent); color: var(--accent); background: #6c63ff10; }
+  #drop-zone input { display: none; }
+  #drop-zone svg { width: 40px; height: 40px; margin-bottom: 12px; }
+
+  /* Webcam */
+  #webcam-panel { display: none; text-align: center; }
+  #video-el { width: 100%; max-height: 360px; border-radius: 10px; background: #000; object-fit: cover; }
+  .cam-controls { display: flex; gap: 10px; margin-top: 12px; justify-content: center; }
+
+  /* Preview */
+  #preview-wrap { display: none; margin-top: 16px; text-align: center; }
+  #preview-img { max-width: 100%; max-height: 300px; border-radius: 10px; border: 1px solid var(--border); }
+
+  /* Buttons */
+  .btn {
+    padding: 11px 22px; border-radius: 10px; border: none; cursor: pointer;
+    font-size: .9rem; font-weight: 600; transition: all .2s; display: inline-flex;
+    align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { filter: brightness(1.15); }
+  .btn-primary:disabled { opacity: .45; cursor: not-allowed; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: #ef44440f; color: var(--red); border: 1px solid #ef444430; }
+
+  .analyze-row { display: flex; gap: 10px; margin-top: 18px; }
+
+  /* Loader */
+  .loader { display: none; text-align: center; padding: 20px; color: var(--muted); }
+  .spinner {
+    width: 36px; height: 36px; border: 3px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Step indicator */
+  .steps-row { display: flex; gap: 6px; align-items: center; margin-bottom: 16px; font-size: .8rem; color: var(--muted); }
+  .step-badge {
+    padding: 3px 10px; border-radius: 20px; background: var(--surface2);
+    border: 1px solid var(--border); white-space: nowrap;
+  }
+  .step-badge.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .step-badge.done { background: #22c55e20; color: var(--green); border-color: #22c55e40; }
+
+  /* Ingredients */
+  #ingredients-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 5px 12px; border-radius: 20px; font-size: .82rem; font-weight: 500;
+    border: 1px solid;
+  }
+  .chip-high { background: #22c55e15; color: var(--green); border-color: #22c55e35; }
+  .chip-medium { background: #eab30815; color: var(--yellow); border-color: #eab30835; }
+  .chip-low { background: #ef444415; color: var(--red); border-color: #ef444435; }
+
+  /* Recipes */
+  .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .recipe-card {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px; display: flex; flex-direction: column; gap: 10px;
+    transition: border-color .2s;
+  }
+  .recipe-card:hover { border-color: var(--accent2); }
+  .recipe-title { font-size: 1rem; font-weight: 700; }
+  .recipe-desc { font-size: .83rem; color: var(--muted); line-height: 1.5; }
+  .recipe-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge {
+    padding: 2px 9px; border-radius: 20px; font-size: .75rem; font-weight: 600;
+    background: var(--surface); border: 1px solid var(--border);
+  }
+  .badge-easy { color: var(--green); border-color: #22c55e40; }
+  .badge-medium { color: var(--yellow); border-color: #eab30840; }
+  .badge-hard { color: var(--red); border-color: #ef444440; }
+
+  details.steps-details { margin-top: 4px; }
+  details.steps-details summary {
+    cursor: pointer; font-size: .82rem; color: var(--accent2); font-weight: 600;
+    list-style: none; user-select: none;
+  }
+  details.steps-details summary::before { content: '▶ '; font-size: .7rem; }
+  details.steps-details[open] summary::before { content: '▼ '; }
+  .steps-list { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .step-item { display: flex; gap: 8px; font-size: .8rem; color: var(--muted); line-height: 1.5; }
+  .step-num {
+    min-width: 22px; height: 22px; background: var(--accent); color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: .72rem; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+  }
+
+  .missing-label { font-size: .75rem; color: var(--red); font-weight: 600; margin-top: 4px; }
+  .missing-items { font-size: .78rem; color: var(--muted); }
+
+  /* Error */
+  .error-box {
+    background: #ef444412; border: 1px solid #ef444430; border-radius: 10px;
+    padding: 14px 16px; color: var(--red); font-size: .88rem; display: none; margin-top: 14px;
+  }
+
+  .regen-row { display: flex; justify-content: flex-end; margin-top: 12px; }
+
+  #results-section { display: none; }
+</style>
+</head>
+<body>
+
+<h1>PantryVision</h1>
+<p class="subtitle">Upload a fridge photo — get recipes instantly</p>
+
+<!-- Upload card -->
+<div class="card">
+  <h2>Add Image</h2>
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-upload" onclick="switchTab('upload')">📁 Upload</button>
+    <button class="tab-btn" id="tab-webcam" onclick="switchTab('webcam')">📷 Webcam</button>
+  </div>
+
+  <!-- File upload -->
+  <div id="upload-panel">
+    <div id="drop-zone" onclick="document.getElementById('file-input').click()"
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M4 16l4-4 4 4 4-8 4 8" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="3" y="3" width="18" height="18" rx="3" stroke-linecap="round"/>
+      </svg>
+      <div style="font-weight:600;margin-bottom:4px;">Drop image here or click to browse</div>
+      <div style="font-size:.8rem;">PNG, JPG, WEBP supported</div>
+      <input type="file" id="file-input" accept="image/*" onchange="onFileSelected(event)">
+    </div>
+  </div>
+
+  <!-- Webcam -->
+  <div id="webcam-panel">
+    <video id="video-el" autoplay playsinline muted></video>
+    <div class="cam-controls">
+      <button class="btn btn-secondary" onclick="startCamera()">Start Camera</button>
+      <button class="btn btn-primary" onclick="snapPhoto()">📸 Snap</button>
+      <button class="btn btn-danger" onclick="stopCamera()">Stop</button>
+    </div>
+    <canvas id="snap-canvas" style="display:none;"></canvas>
+  </div>
+
+  <!-- Preview -->
+  <div id="preview-wrap">
+    <img id="preview-img" alt="Preview">
+    <div style="margin-top:10px;">
+      <button class="btn btn-secondary btn-sm" onclick="clearImage()">✕ Remove</button>
+    </div>
+  </div>
+
+  <div id="upload-error" class="error-box"></div>
+
+  <div class="analyze-row">
+    <button class="btn btn-primary" id="analyze-btn" onclick="analyze()" disabled>
+      🔍 Analyze Fridge
+    </button>
+  </div>
+</div>
+
+<!-- Results -->
+<div class="card" id="results-section">
+  <div class="steps-row" id="steps-row">
+    <span class="step-badge" id="step1">1 · Detecting ingredients</span>
+    <span style="flex:1;height:1px;background:var(--border);"></span>
+    <span class="step-badge" id="step2">2 · Generating recipes</span>
+  </div>
+
+  <div class="loader" id="main-loader">
+    <div class="spinner"></div>
+    <div id="loader-text">Analyzing your fridge…</div>
+  </div>
+
+  <!-- Ingredients -->
+  <div id="ingredients-section" style="display:none;">
+    <h2>Detected Ingredients</h2>
+    <div id="ingredients-list"></div>
+  </div>
+
+  <div id="recipes-loader" class="loader" style="margin-top:16px;">
+    <div class="spinner"></div>
+    <div>Generating recipe ideas…</div>
+  </div>
+
+  <!-- Recipes -->
+  <div id="recipes-section" style="display:none;margin-top:20px;">
+    <h2>Recipe Suggestions</h2>
+    <div class="recipe-grid" id="recipe-grid"></div>
+    <div class="regen-row">
+      <button class="btn btn-secondary" onclick="regenerate()">🔄 Regenerate Recipes</button>
+    </div>
+  </div>
+
+  <div id="result-error" class="error-box"></div>
+</div>
+
+<script>
+  let currentFile = null;
+  let currentIngredients = [];
+  let cameraStream = null;
+
+  /* ── Tab switching ── */
+  function switchTab(tab) {
+    document.getElementById('tab-upload').classList.toggle('active', tab === 'upload');
+    document.getElementById('tab-webcam').classList.toggle('active', tab === 'webcam');
+    document.getElementById('upload-panel').style.display = tab === 'upload' ? '' : 'none';
+    document.getElementById('webcam-panel').style.display = tab === 'webcam' ? 'block' : 'none';
+    if (tab !== 'webcam') stopCamera();
+  }
+
+  /* ── Drag & Drop ── */
+  function onDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag-over'); }
+  function onDragLeave() { document.getElementById('drop-zone').classList.remove('drag-over'); }
+  function onDrop(e) {
+    e.preventDefault();
+    document.getElementById('drop-zone').classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) loadFile(file);
+  }
+  function onFileSelected(e) { if (e.target.files[0]) loadFile(e.target.files[0]); }
+
+  function loadFile(file) {
+    if (!file.type.startsWith('image/')) { showUploadError('Please select an image file.'); return; }
+    hideUploadError();
+    currentFile = file;
+    const url = URL.createObjectURL(file);
+    showPreview(url);
+  }
+
+  /* ── Webcam ── */
+  async function startCamera() {
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      document.getElementById('video-el').srcObject = cameraStream;
+    } catch (err) {
+      showUploadError('Camera access denied: ' + err.message);
+    }
+  }
+
+  function snapPhoto() {
+    const video = document.getElementById('video-el');
+    const canvas = document.getElementById('snap-canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    canvas.toBlob(blob => {
+      currentFile = new File([blob], 'webcam.jpg', { type: 'image/jpeg' });
+      showPreview(URL.createObjectURL(currentFile));
+    }, 'image/jpeg', 0.92);
+    stopCamera();
+    switchTab('upload');
+  }
+
+  function stopCamera() {
+    if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  }
+
+  /* ── Preview ── */
+  function showPreview(url) {
+    document.getElementById('preview-img').src = url;
+    document.getElementById('preview-wrap').style.display = 'block';
+    document.getElementById('analyze-btn').disabled = false;
+  }
+
+  function clearImage() {
+    currentFile = null;
+    document.getElementById('preview-wrap').style.display = 'none';
+    document.getElementById('preview-img').src = '';
+    document.getElementById('analyze-btn').disabled = true;
+    document.getElementById('file-input').value = '';
+  }
+
+  /* ── Analyze ── */
+  async function analyze() {
+    if (!currentFile) return;
+
+    document.getElementById('results-section').style.display = 'block';
+    document.getElementById('ingredients-section').style.display = 'none';
+    document.getElementById('recipes-section').style.display = 'none';
+    hideResultError();
+
+    setStep(1);
+    showLoader('main-loader', 'Detecting ingredients…');
+
+    const form = new FormData();
+    form.append('file', currentFile);
+
+    let data;
+    try {
+      const res = await fetch('/analyze', { method: 'POST', body: form });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Server error'); }
+      data = await res.json();
+    } catch (err) {
+      hideLoader('main-loader');
+      showResultError('Analysis failed: ' + err.message);
+      return;
+    }
+
+    hideLoader('main-loader');
+    setStep(1, 'done');
+    renderIngredients(data.ingredients);
+
+    setStep(2, 'active');
+    showLoader('recipes-loader');
+
+    renderRecipes(data.recipes);
+    hideLoader('recipes-loader');
+    setStep(2, 'done');
+  }
+
+  /* ── Regenerate ── */
+  async function regenerate() {
+    if (!currentIngredients.length) return;
+    document.getElementById('recipes-section').style.display = 'none';
+    hideResultError();
+    setStep(2, 'active');
+    showLoader('recipes-loader');
+
+    let data;
+    try {
+      const res = await fetch('/regenerate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredients: currentIngredients }),
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Server error'); }
+      data = await res.json();
+    } catch (err) {
+      hideLoader('recipes-loader');
+      showResultError('Regeneration failed: ' + err.message);
+      return;
+    }
+
+    hideLoader('recipes-loader');
+    setStep(2, 'done');
+    renderRecipes(data.recipes);
+  }
+
+  /* ── Render ── */
+  function renderIngredients(ingredients) {
+    currentIngredients = ingredients.map(i => i.name);
+    const el = document.getElementById('ingredients-list');
+    el.innerHTML = ingredients.map(i => {
+      const cls = i.confidence === 'high' ? 'chip-high' : i.confidence === 'medium' ? 'chip-medium' : 'chip-low';
+      const qty = i.quantity ? ` · ${i.quantity}` : '';
+      return `<span class="chip ${cls}">${i.name}${qty}</span>`;
+    }).join('');
+    document.getElementById('ingredients-section').style.display = 'block';
+  }
+
+  function renderRecipes(recipes) {
+    const grid = document.getElementById('recipe-grid');
+    grid.innerHTML = recipes.map(r => {
+      const diffClass = r.difficulty === 'Easy' ? 'badge-easy' : r.difficulty === 'Medium' ? 'badge-medium' : 'badge-hard';
+      const steps = (r.steps || []).map((s, i) =>
+        `<div class="step-item"><div class="step-num">${i+1}</div><div>${s}</div></div>`
+      ).join('');
+      const missing = (r.missing_ingredients && r.missing_ingredients.length)
+        ? `<div class="missing-label">You may need:</div><div class="missing-items">${r.missing_ingredients.join(', ')}</div>`
+        : '';
+      return `
+        <div class="recipe-card">
+          <div class="recipe-title">${r.title}</div>
+          <div class="recipe-desc">${r.description}</div>
+          <div class="recipe-meta">
+            <span class="badge">${r.cook_time}</span>
+            <span class="badge ${diffClass}">${r.difficulty}</span>
+          </div>
+          ${missing}
+          <details class="steps-details">
+            <summary>View steps</summary>
+            <div class="steps-list">${steps}</div>
+          </details>
+        </div>`;
+    }).join('');
+    document.getElementById('recipes-section').style.display = 'block';
+  }
+
+  /* ── Helpers ── */
+  function setStep(num, state) {
+    const el = document.getElementById('step' + num);
+    el.classList.remove('active', 'done');
+    if (state === 'active') el.classList.add('active');
+    if (state === 'done') el.classList.add('done');
+    if (!state && num === 1) el.classList.add('active');
+  }
+
+  function showLoader(id, text) {
+    const el = document.getElementById(id);
+    el.style.display = 'block';
+    if (text) { const t = document.getElementById('loader-text'); if (t) t.textContent = text; }
+  }
+  function hideLoader(id) { document.getElementById(id).style.display = 'none'; }
+
+  function showUploadError(msg) {
+    const el = document.getElementById('upload-error');
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function hideUploadError() { document.getElementById('upload-error').style.display = 'none'; }
+
+  function showResultError(msg) {
+    const el = document.getElementById('result-error');
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function hideResultError() { document.getElementById('result-error').style.display = 'none'; }
+</script>
+</body>
+</html>
