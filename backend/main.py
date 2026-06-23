@@ -2,7 +2,6 @@ import base64
 import json
 import re
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import anthropic
@@ -11,7 +10,7 @@ app = FastAPI(title="PantryVision API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -92,12 +91,6 @@ def generate_recipes(ingredients: list[str]) -> list[dict]:
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
-
-@app.get("/", response_class=HTMLResponse)
-def serve_frontend():
-    with open("index.html") as f:
-        return f.read()
 
 
 @app.post("/analyze")
