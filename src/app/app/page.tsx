@@ -27,7 +27,7 @@ function StepBadge({
       className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-500 ${styles[state]}`}
     >
       {state === "done" && (
-        <span className="mr-1.5">✓</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-3 h-3 mr-1.5 inline"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
       )}
       {state === "active" && (
         <span className="inline-flex gap-1 mr-1.5">
@@ -127,7 +127,8 @@ export default function AppPage() {
       {/* Nav */}
       <nav className="relative z-10 flex items-center justify-between px-6 py-5 max-w-4xl mx-auto border-b border-border/50">
         <Link href="/" className="gradient-text font-extrabold text-lg tracking-tight hover:opacity-80 transition-opacity">
-          ← PantryVision
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 inline mr-1"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+          PantryVision
         </Link>
         <span className="text-xs text-slate-600 font-medium">AI Recipe Generator</span>
       </nav>
@@ -169,7 +170,7 @@ export default function AppPage() {
                     : "Crafting your recipes…"}
                 </span>
               ) : (
-                "🔍  Analyse Fridge"
+                <span className="inline-flex items-center gap-2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z" /></svg>Analyse Fridge</span>
               )}
             </button>
           </div>
@@ -186,7 +187,7 @@ export default function AppPage() {
           {/* Error */}
           {error && (
             <div className="animate-scale-in bg-red-500/8 border border-red-500/25 rounded-xl px-5 py-4 flex items-start gap-3">
-              <span className="text-red-400 text-lg mt-0.5">⚠</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
               <div>
                 <p className="text-red-400 font-semibold text-sm mb-0.5">Something went wrong</p>
                 <p className="text-red-400/70 text-xs">{error}</p>

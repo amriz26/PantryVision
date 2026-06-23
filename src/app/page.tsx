@@ -1,23 +1,57 @@
 import Link from "next/link";
 
+function IconEye() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  );
+}
+
+function IconChef() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.87c1.355 0 2.697.055 4.024.165C17.155 8.51 18 9.473 18 10.608v2.513M15 20.188l-.39-2.6a3 3 0 00-2.954-2.564H12.35a3 3 0 00-2.954 2.563L9 20.188M7.5 14.25a3 3 0 006 0v-2.625m-6 2.625h6" />
+    </svg>
+  );
+}
+
+function IconRefresh() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+    </svg>
+  );
+}
+
+function IconCamera() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+    </svg>
+  );
+}
+
 const features = [
   {
-    icon: "👁️",
+    Icon: IconEye,
     title: "Vision-Powered Detection",
     desc: "Claude's multimodal AI scans your fridge photo and identifies every ingredient — even half-used containers.",
   },
   {
-    icon: "🍳",
+    Icon: IconChef,
     title: "Instant Recipe Ideas",
     desc: "Get three tailored meal suggestions generated from exactly what you have, with clear step-by-step instructions.",
   },
   {
-    icon: "🔄",
+    Icon: IconRefresh,
     title: "Regenerate on Demand",
     desc: "Don't love the suggestions? Regenerate fresh recipes from the same ingredient list without re-uploading.",
   },
   {
-    icon: "📸",
+    Icon: IconCamera,
     title: "Webcam or Upload",
     desc: "Snap a photo directly in your browser or upload one from your device — no app install needed.",
   },
@@ -59,9 +93,12 @@ export default function HomePage() {
             href="https://github.com/amriz26/PantryVision"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-slate-400 hover:text-white transition-colors"
+            className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1"
           >
-            GitHub ↗
+            GitHub
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
           </a>
           <Link
             href="/app"
@@ -76,7 +113,7 @@ export default function HomePage() {
       <section className="relative z-10 flex flex-col items-center text-center px-6 pt-20 pb-28">
         <div className="animate-fade-up inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/25 text-violet-300 text-xs font-semibold mb-8 tracking-wide">
           <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-          Powered by Claude claude-sonnet-4-6 Vision
+          Powered by Claude Vision AI
         </div>
 
         <h1 className="animate-fade-up delay-100 text-5xl sm:text-7xl font-black leading-[1.05] tracking-tighter max-w-3xl mb-6">
@@ -93,17 +130,23 @@ export default function HomePage() {
         <div className="animate-fade-up delay-300 flex flex-wrap gap-3 justify-center">
           <Link
             href="/app"
-            className="btn-shimmer px-7 py-3.5 rounded-xl text-white font-bold text-sm shadow-lg shadow-violet-900/40 hover:scale-105 transition-transform"
+            className="btn-shimmer px-7 py-3.5 rounded-xl text-white font-bold text-sm shadow-lg shadow-violet-900/40 hover:scale-105 transition-transform inline-flex items-center gap-2"
           >
-            Analyse My Fridge →
+            Analyse My Fridge
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
           </Link>
           <a
             href="https://github.com/amriz26/PantryVision"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-7 py-3.5 rounded-xl glass text-slate-300 font-semibold text-sm hover:text-white hover:border-accent2 transition-all"
+            className="px-7 py-3.5 rounded-xl glass text-slate-300 font-semibold text-sm hover:text-white hover:border-accent2 transition-all inline-flex items-center gap-2"
           >
             View on GitHub
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
           </a>
         </div>
 
@@ -124,21 +167,24 @@ export default function HomePage() {
               <div className="p-6 space-y-4">
                 {/* Upload zone mock */}
                 <div className="border-2 border-dashed border-violet-500/30 rounded-xl p-8 text-center bg-violet-500/5">
-                  <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-violet-500/20 flex items-center justify-center text-xl">
-                    📷
+                  <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-violet-500/20 flex items-center justify-center text-violet-400">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+                    </svg>
                   </div>
                   <p className="text-sm font-semibold text-slate-300">Drop your fridge photo here</p>
                   <p className="text-xs text-slate-600 mt-1">or click to browse</p>
                 </div>
                 {/* Ingredient chips mock */}
                 <div className="flex flex-wrap gap-2">
-                  {["🥚 Eggs · 6", "🥛 Milk · 1L", "🧀 Cheddar", "🥦 Broccoli", "🧅 Onion", "🫒 Olive Oil"].map((item) => (
+                  {["Eggs · 6", "Milk · 1L", "Cheddar", "Broccoli", "Onion", "Olive Oil"].map((item) => (
                     <span key={item} className="px-3 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/25">
                       {item}
                     </span>
                   ))}
                   <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-400 border border-yellow-500/25">
-                    🧄 Garlic · approx 3
+                    Garlic · approx 3
                   </span>
                 </div>
                 {/* Recipe cards mock */}
@@ -180,8 +226,8 @@ export default function HomePage() {
               key={f.title}
               className={`glass rounded-2xl p-6 card-hover animate-fade-up delay-${(i + 1) * 100}`}
             >
-              <div className="w-11 h-11 rounded-xl bg-violet-500/15 border border-violet-500/20 flex items-center justify-center text-2xl mb-4">
-                {f.icon}
+              <div className="w-11 h-11 rounded-xl bg-violet-500/15 border border-violet-500/20 flex items-center justify-center text-violet-400 mb-4">
+                <f.Icon />
               </div>
               <h3 className="font-bold text-white mb-2 text-sm">{f.title}</h3>
               <p className="text-slate-500 text-sm leading-relaxed">{f.desc}</p>
@@ -199,7 +245,6 @@ export default function HomePage() {
           </h2>
         </div>
         <div className="grid sm:grid-cols-3 gap-8 relative">
-          {/* Connector line */}
           <div className="hidden sm:block absolute top-8 left-1/6 right-1/6 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
           {steps.map((s, i) => (
             <div key={s.n} className={`flex flex-col items-center text-center animate-fade-up delay-${(i + 1) * 200}`}>
@@ -227,9 +272,12 @@ export default function HomePage() {
           </p>
           <Link
             href="/app"
-            className="btn-shimmer inline-block px-8 py-4 rounded-xl text-white font-bold text-base shadow-lg shadow-violet-900/40 hover:scale-105 transition-transform"
+            className="btn-shimmer inline-flex items-center gap-2 px-8 py-4 rounded-xl text-white font-bold text-base shadow-lg shadow-violet-900/40 hover:scale-105 transition-transform"
           >
-            Get Started — It's Free →
+            Get Started — It's Free
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
           </Link>
         </div>
       </section>
@@ -237,7 +285,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="relative z-10 border-t border-border px-6 py-10 text-center text-slate-600 text-sm">
         <p className="gradient-text font-bold text-base mb-2">PantryVision</p>
-        <p>Built with Claude claude-sonnet-4-6 Vision · Next.js · FastAPI</p>
+        <p>Built with Claude Vision AI · Next.js · FastAPI</p>
       </footer>
     </div>
   );
